@@ -33,6 +33,8 @@ const userCollection = database.db(mongodb_database).collection('users');
 
 app.use(express.urlencoded({extended: false}));
 
+app.set('view engine', 'ejs');
+
 var mongoStore = MongoStore.create({
   mongoUrl: `mongodb+srv://${mongodb_user}:${mongodb_password}@${mongodb_host}/sessions`,
   crypto: {
@@ -49,13 +51,13 @@ app.use(session({
 ));
 
 app.get("/", (req,res) => {
-  let file;
+  let buttons
   if(req.session.authenticated) {
-     file = fs.readFileSync("public/html/loggedIndex.html", 'utf-8');
+     buttons = ['main', 'signout'];
   } else { 
-    file = fs.readFileSync("public/html/unloggedIndex.html", 'utf-8')
+    buttons = ['login', 'signup']
   }
- res.send(file);
+ res.render('index', {buttons: buttons});
 })
 
 app.get('/login', (req,res) => {
@@ -63,8 +65,7 @@ app.get('/login', (req,res) => {
     res.redirect('/')
     return;
   }
-  const file = fs.readFileSync('public/html/login.html', 'utf-8');
-  res.send(file);
+  res.render('form', {input: ['email'], action: 'login'})
 })
 
 app.post('/login', async (req,res) => {
@@ -104,8 +105,11 @@ app.post('/login', async (req,res) => {
 })
 
 app.get('/signup', (req,res) => {
-  const file = fs.readFileSync('public/html/signup.html', 'utf-8');
-  res.send(file);
+    if(req.session.authenticated) {
+    res.redirect('/')
+    return;
+  }
+  res.render('form', {input: ['name', 'email'], action: 'signup'})
 })
 
 app.post('/signup', async (req,res) => { 
@@ -158,7 +162,7 @@ app.get('/userInfo', (req,res) => {
 
 app.get("*", (req,res) => {
   res.status(404);
-  res.send(`This page does not exist Click <a href='/'>here</a> to go back to the home page`);
+  res.render('404');
 });
 
 
