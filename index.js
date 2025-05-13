@@ -53,11 +53,11 @@ app.use(session({
 app.get("/", (req,res) => {
   let buttons
   if(req.session.authenticated) {
-     buttons = ['main', 'signout'];
+     buttons = ['main', 'signout', 'admin'];
   } else { 
     buttons = ['login', 'signup']
   }
- res.render('index', {buttons: buttons});
+ res.render('index', {buttons: buttons, scripts: []});
 })
 
 app.get('/login', (req,res) => {
@@ -65,7 +65,7 @@ app.get('/login', (req,res) => {
     res.redirect('/')
     return;
   }
-  res.render('form', {input: ['email'], action: 'login'})
+  res.render('form', {input: ['email'], action: 'login',  scripts: []})
 })
 
 app.post('/login', async (req,res) => {
@@ -94,6 +94,7 @@ app.post('/login', async (req,res) => {
     req.session.authenticated = true;
     req.session.name = result[0].name;
     req.session.email = result[0].email;
+    req.session.admin = result[0].admin;
     req.session.cookie.maxAge = expireTime;
     res.redirect('/');
     return
@@ -109,7 +110,7 @@ app.get('/signup', (req,res) => {
     res.redirect('/')
     return;
   }
-  res.render('form', {input: ['name', 'email'], action: 'signup'})
+  res.render('form', {input: ['name', 'email'], action: 'signup', scripts: []})
 })
 
 app.post('/signup', async (req,res) => { 
@@ -131,9 +132,10 @@ app.post('/signup', async (req,res) => {
 
   const hashedPassword = await bcrypt.hash(password, saltRounds);
 
-  await userCollection.insertOne({email: email, name: name, password: hashedPassword});
+  await userCollection.insertOne({email: email, name: name, password: hashedPassword, admin: false});
 
   req.session.authenticated = true;
+  req.session.admin = false;
   req.session.name = name;
   req.session.email = email;
   req.session.cookie.maxAge = expireTime;
@@ -145,8 +147,8 @@ app.get('/main', (req,res) => {
     res.redirect('/');
     return
   }
-  const file = fs.readFileSync('public/html/main.html', 'utf-8');
-  res.send(file);
+
+  res.render('main', {name: req.session.name, scripts: []})
 })
 
 
@@ -155,14 +157,42 @@ app.get('/signout', (req,res) => {
   res.redirect('/');
 })
 
+app.get('/admin', async (req,res) => {
+  if(!req.session.authenticated) {
+    res.redirect('/login');
+    return
+  }
 
+  if(req.session.admin == false) {
+    res.status(403);
+    res.render('error', {code: 403, msg: "You are not authorized to view that page", scripts: []})
+    return
+  }
+
+
+    const users = userCollection.find({}).sort({name: 1}).project({_id: 0, name: 1, admin: 1})
+  const toSend = []
+  for await (const doc of users) {
+    toSend.push(doc);
+  }
+  res.render('admin', {users: toSend, scripts: ['admin']})
+})
+
+
+app.post('/promote', async (req,res) => {
+  await userCollection.updateOne({name: req.body.name}, {$set: {admin: true}});
+})
+
+app.post('/demote', async (req, res) => {
+  await userCollection.updateOne({name: req.body.name}, {$set: {admin: false}});
+})
 app.get('/userInfo', (req,res) => {
   res.send(req.session.name);
 })
 
 app.get("*", (req,res) => {
   res.status(404);
-  res.render('404');
+  res.render('error', {code: 404, msg: "The page you're looking for does not exist", scripts: []});
 });
 
 

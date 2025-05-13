@@ -1,0 +1,20 @@
+<%- include("templates/header") %>
+
+<h1>Users</h1>
+
+<% if(users != undefined) { %>
+  <ul>
+
+    <% for(let i = 0; i < users.length; i++) { %>
+      <li>
+
+        <p><%= users[i].name %>  <%= users[i].admin ? "(admin)" : "(user)" %></p>
+        <button type="button" class="promote btn btn-success" data-name = "<%= users[i].name %>">Promote to admin</button>
+        <button type="button" class="demote btn btn-danger" data-name = "<%= users[i].name %>">Demote to user</button>
+      </li>
+      <% } %>
+      <% } %>
+    </ul>
+      
+
+<%- include("templates/footer") %>

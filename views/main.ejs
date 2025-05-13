@@ -1,10 +1,12 @@
 <%- include("templates/header") %>
   <h1> Exclusive Members Only Area!</h1>
   <h2>Hello <i><%= name %></i></h2>
-  <div id="imageContainer">
-    <img src="/images/hyrax1.jpg">
-    <img src="/images/hyrax2.jpg">
-    <img src="/images/hyrax3.jpg">
+  <div id="container"> 
+    <div class="row">
+      <div class="col-sm"><img src="/images/hyrax1.jpg" class="img-fluid"></div>
+      <div class="col-sm"><img src="/images/hyrax2.jpg" class="img-fluid"></div>
+      <div class="col-sm"><img src="/images/hyrax3.jpg" class="img-fluid"></div>
+    </div>
   </div>
 
   <a href="/signout">Signout</a>

@@ -1,6 +1,12 @@
 <%- include("templates/header") %>
+<ul class="nav justify-content-center">
 
-<a href="/<%= buttons[0] %>"><%= buttons[0] %></a>
-<a href="/<%= buttons[1] %>"><%= buttons[1] %></a>
+  <% for(let i = 0; i < buttons.length; i++) { %>
+    <li class="nav-item">
+      <a href="/<%= buttons[i] %>" class="nav-link"><%= buttons[i] %></a>
+    </li>
+    <% } %>
+    
+</ul>
 
 <%- include("templates/footer") %>
