@@ -3,10 +3,10 @@
 <form method="post" action="<%= action %>">
 <% if(typeof input != undefined) { %>
   <% for(let i = 0; i < input.length; i++) { %>
-    <input name = "<%= input[i] %>" type="text" placeholder="<%= input[i] %>"> 
+    <input name = "<%= input[i] %>" type="text" placeholder="<%= input[i] %>" class="form-control-lg"> 
   <% } %>
 <% } %>
-<input type="password" name="password" placeholder="password">
+<input type="password" name="password" placeholder="password" class="form-control-lg">
 <button>Submit</button>
 </form>
 
