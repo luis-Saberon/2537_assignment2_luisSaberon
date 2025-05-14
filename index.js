@@ -79,7 +79,7 @@ app.post('/login', async (req,res) => {
 
   const validationResult = schema.validate({email, password});
   if(validationResult.error != null) {
-    res.send(`${validationResult.error.details[0].message} <a href='/login'>Try Again</a>` );
+    res.render('error', {code:401, msg: "Invalid syntax for either email or password"});
     return;
   }
 
@@ -87,7 +87,7 @@ app.post('/login', async (req,res) => {
 
 
   if (result.length != 1) {
-    res.send(`Email does not exist <a href='/login'>Try Again</a>`);
+    res.render('error', {code:401, msg: "Email does not exist"});
 		return;
 	}
   if (await bcrypt.compare(password, result[0].password)) {
@@ -100,7 +100,7 @@ app.post('/login', async (req,res) => {
     return
   }
   else {
-    res.send(`Incorrect password <a href='login'> Try Again</a>`)
+    res.render('error', {code:401, msg: "Incorrect password"});
 		return;
 	}
 })
@@ -159,7 +159,7 @@ app.get('/signout', (req,res) => {
 
 app.get('/admin', async (req,res) => {
   if(!req.session.authenticated) {
-    res.redirect('/login');
+    res.redirect('/');
     return
   }
 
